@@ -1,5 +1,7 @@
 # yt-dlp UI
 
+> This project was built with [Claude Code](https://claude.ai/claude-code) — the code was written by Claude (Anthropic's AI), not a human developer.
+
 A web interface for [yt-dlp](https://github.com/yt-dl/yt-dlp). Paste a video URL, browse available formats, and download files directly to your device.
 
 ## Requirements
@@ -54,3 +56,4 @@ Open [http://localhost:3000](http://localhost:3000).
 - [Next.js 15](https://nextjs.org) (App Router)
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp)
 - [shadcn/ui](https://ui.shadcn.com) + [Tailwind CSS](https://tailwindcss.com)
+
