@@ -73,7 +73,6 @@ export function DownloadButton({ format, info, videoUrl }: Props) {
 
           const a = document.createElement('a');
           a.href = `/api/download?jobId=${jobId}`;
-          a.download = `${info.title}.${format.ext}`;
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);

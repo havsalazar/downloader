@@ -24,7 +24,7 @@ const MIME_TYPES: Record<string, string> = {
 };
 
 function safeFilename(name: string) {
-  return name.replace(/[^\w\s\-_.()[\]]/g, '_').slice(0, 200);
+  return name.replace(/[^a-zA-Z0-9\s\-_.]/g, '_').slice(0, 200);
 }
 
 export async function POST(req: NextRequest) {
@@ -39,8 +39,21 @@ export async function POST(req: NextRequest) {
   if (!url || !formatId) {
     return NextResponse.json({ error: 'Missing url or formatId' }, { status: 400 });
   }
-  try { new URL(url); } catch {
+
+  let parsed: URL;
+  try { parsed = new URL(url); } catch {
     return NextResponse.json({ error: 'Invalid URL' }, { status: 400 });
+  }
+  if (!['http:', 'https:'].includes(parsed.protocol)) {
+    return NextResponse.json({ error: 'Invalid URL' }, { status: 400 });
+  }
+
+  if (!/^[\w.+\-]+$/.test(formatId)) {
+    return NextResponse.json({ error: 'Invalid formatId' }, { status: 400 });
+  }
+
+  if (!MIME_TYPES[ext]) {
+    return NextResponse.json({ error: 'Invalid extension' }, { status: 400 });
   }
 
   await mkdir(TEMP_DIR, { recursive: true });
@@ -105,7 +118,8 @@ export async function POST(req: NextRequest) {
 
   ytdlp.on('error', (err) => {
     clearTimeout(abandonTimeout);
-    emit({ status: 'error', message: err.message });
+    console.error('[prepare] spawn error:', err.message);
+    emit({ status: 'error', message: 'Download failed' });
     jobs.delete(jobId);
     unlink(tempPath).catch(() => {});
   });
@@ -128,7 +142,8 @@ export async function POST(req: NextRequest) {
         unlink(tempPath).catch(() => {});
       }
     } else {
-      emit({ status: 'error', message: `yt-dlp exited with code ${code}` });
+      console.error('[prepare] yt-dlp exited with code', code);
+      emit({ status: 'error', message: 'Download failed' });
       jobs.delete(jobId);
       unlink(tempPath).catch(() => {});
     }

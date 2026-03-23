@@ -63,9 +63,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing url' }, { status: 400 });
   }
 
+  let parsed: URL;
   try {
-    new URL(url);
+    parsed = new URL(url);
   } catch {
+    return NextResponse.json({ error: 'Invalid URL' }, { status: 400 });
+  }
+  if (!['http:', 'https:'].includes(parsed.protocol)) {
     return NextResponse.json({ error: 'Invalid URL' }, { status: 400 });
   }
 
@@ -75,7 +79,11 @@ export async function POST(req: NextRequest) {
       ['--no-warnings', '--no-playlist', '-J', url],
       { maxBuffer: 50 * 1024 * 1024, timeout: 30_000 },
       (err, stdout, stderr) => {
-        if (err) { reject(new Error(stderr || err.message)); return; }
+        if (err) {
+          console.error('[formats] yt-dlp error:', stderr || err.message);
+          reject(new Error('Failed to fetch video info'));
+          return;
+        }
         try {
           const data = JSON.parse(stdout) as YtdlpVideoInfo;
           data.formats = (data.formats ?? []).filter(
