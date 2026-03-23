@@ -3,7 +3,8 @@
     "allow": [
       "Bash(node -e \"const {execFile} = require\\(''child_process''\\); console.log\\(''execFile available''\\)\")",
       "Bash(node -e \"const {spawn} = require\\(''child_process''\\); console.log\\(''spawn available''\\)\")",
-      "Bash(yt-dlp --help)"
+      "Bash(yt-dlp --help)",
+      "Bash(npm run:*)"
     ]
   }
 }
