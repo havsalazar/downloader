@@ -65,9 +65,9 @@ export function FormatTable({ info, videoUrl }: FormatTableProps) {
           {grouped[type].length === 0 ? (
             <p className="text-muted-foreground text-sm py-4">No formats available.</p>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="[&>[data-slot=table-container]]:h-96 [&>[data-slot=table-container]]:overflow-y-auto">
             <Table>
-              <TableHeader>
+              <TableHeader className="sticky top-0 z-10 bg-card">
                 <TableRow>
                   <TableHead>Resolution</TableHead>
                   <TableHead className="hidden sm:table-cell">Container</TableHead>

@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { ClipboardPaste, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ButtonGroup } from '@/components/ui/button-group';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { FormatTable } from './FormatTable';
@@ -15,7 +17,7 @@ export function UrlForm() {
   const [videoInfo, setVideoInfo] = useState<YtdlpVideoInfo | null>(null);
   const [fetchedUrl, setFetchedUrl] = useState('');
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -41,23 +43,48 @@ export function UrlForm() {
     }
   }
 
+  async function handlePaste() {
+    setUrl('');
+    const text = await navigator.clipboard.readText();
+    setUrl(text);
+  }
+
   const duration = videoInfo?.duration ? formatDuration(videoInfo.duration) : null;
   const channel = videoInfo?.channel ?? videoInfo?.uploader ?? null;
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-        <Input
-          type="url"
-          placeholder="https://www.youtube.com/watch?v=..."
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          autoComplete="off"
-          required
-        />
-        <Button type="submit" disabled={loading} className="w-full">
-          {loading ? 'Fetching…' : 'Fetch Info'}
-        </Button>
+      <form onSubmit={handleSubmit}>
+        <ButtonGroup className="w-full">
+          <div data-slot="input" className="relative flex h-8 flex-1 items-center rounded-l-lg border border-input bg-transparent dark:bg-input/30">
+            <Input
+              type="url"
+              placeholder="https://www.youtube.com/watch?v=..."
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(e); }}
+              autoComplete="off"
+              required
+              className="flex-1 border-0 bg-transparent shadow-none focus-visible:ring-0 pr-7"
+            />
+            {url && (
+              <button
+                type="button"
+                onClick={() => setUrl('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Clear input"
+              >
+                <X className="size-3.5" />
+              </button>
+            )}
+          </div>
+          <Button type="button" variant="outline" size="icon" onClick={handlePaste} title="Paste from clipboard">
+            <ClipboardPaste />
+          </Button>
+          <Button type="submit" disabled={loading} variant="outline">
+            {loading ? 'Fetching…' : 'Fetch Info'}
+          </Button>
+        </ButtonGroup>
       </form>
 
       {error && (
